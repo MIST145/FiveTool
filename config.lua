@@ -13,15 +13,15 @@ Config.Blip = {
     },
 }
 
-Config.Target = 'qb' -- REMOVED SUPPORT FOR OX
+Config.Target = 'ox' -- Updated to use ox_target
 
 Config.UseMenu = false --- Set this to "true" if you like to use the menu to interact with the Boss 
 
-Config.Menu = 'qb' -- REMOVED SUPPORT FOR OX
+Config.Menu = 'ox' -- Updated to use ox_lib menu
 
 Config.PedType = "a_m_m_ktown_01"
 
-Config.VehicleKeys = 'qb-vehiclekeys' -- qb-vehiclekeys or mk_vehiclekeys
+Config.VehicleKeys = 'ox_vehiclekeys' -- Update vehicle keys to match ox_lib usage
 
 Config.TruckToSpawn = "packer" -- Vehicle MUST be able to pull a large trailer. 
 
@@ -33,7 +33,7 @@ Config.FuelScript = 'LegacyFuel' -- cdn-fuel or ps-fuel or LegacyFuel
 
 Config.PayType = 'bank' -- Where does the money come from? bank or cash
 
-Config.TruckPrice = 5000 -- Cost of the vehicle to pull out //// //// if the player chose the 2nd option (Start Work With Your Own Truck) this is disabled and the "Config.TankPrice" will take place
+Config.TruckPrice = 5000 -- Cost of the vehicle to pull out //// if the player chose the 2nd option (Start Work With Your Own Truck) this is disabled and the "Config.TankPrice" will take place
 
 Config.TankPrice = 2000 --- Cost of the tank for the players that use their own trucks to do the job
 
