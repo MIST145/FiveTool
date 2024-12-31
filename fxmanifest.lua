@@ -10,10 +10,10 @@ version '1.0.0'
 shared_scripts {
     'config.lua',
     '@PolyZone/client.lua',
-    '@PolyZone/BoxZone.lua'
+    '@PolyZone/BoxZone.lua',
+    '@ox_lib/init.lua' -- Ensure ox_lib is included
 }
 client_scripts {
     'client.lua',
 }
 server_script 'server.lua'
-
