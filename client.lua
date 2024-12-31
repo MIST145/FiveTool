@@ -77,53 +77,51 @@ CreateThread(function()
     SetEntityInvincible(targetped, true)
 
     if Config.UseMenu == true then
-        if Config.Menu == 'esx' and Config.Target == 'esx' then
-            exports['esx_target']:AddTargetModel({pedHash}, {
-                options = {
-                    {
-                        num = 1,
-                        type = "client",
-                        event = "md-opentruckermenu",
-                        icon = "fas fa-sign-in-alt",
-                        label = "Talk To Boss!",
-                    },
+        if Config.Menu == 'ox' and Config.Target == 'ox' then
+            exports['ox_target']:AddModel(pedHash, {
+                {
+                    num = 1,
+                    type = "client",
+                    event = "md-opentruckermenu",
+                    icon = "fas fa-sign-in-alt",
+                    label = "Talk To Boss!",
                 },
+            }, {
                 distance = 2.0,
             })
         end
     else
-        if Config.Target == 'esx' then
-            exports['esx_target']:AddTargetModel({pedHash}, {
-                options = {
-                    {
-                        num = 1,
-                        type = "server",
-                        event = "md-checkCash",
-                        icon = "fas fa-sign-in-alt",
-                        label = "Rent a Truck and Start Work",
-                    },
-                    {
-                        num = 2,
-                        type = "server",
-                        event = "md-ownedtruck",
-                        icon = "fas fa-sign-in-alt",
-                        label = "Start Work With Your Own Truck",
-                    },
-                    {
-                        num = 3,
-                        type = "client",
-                        event = "GetTruckerPay",
-                        icon = "fas fa-money-bill-wave",
-                        label = "Get Paycheck",
-                    },
-                    {
-                        num = 4,
-                        type = "client",
-                        event = "RestartJob",
-                        icon = "fas fa-ban",
-                        label = "Restart Job",
-                    },
+        if Config.Target == 'ox' then
+            exports['ox_target']:AddModel(pedHash, {
+                {
+                    num = 1,
+                    type = "server",
+                    event = "md-checkCash",
+                    icon = "fas fa-sign-in-alt",
+                    label = "Rent a Truck and Start Work",
                 },
+                {
+                    num = 2,
+                    type = "server",
+                    event = "md-ownedtruck",
+                    icon = "fas fa-sign-in-alt",
+                    label = "Start Work With Your Own Truck",
+                },
+                {
+                    num = 3,
+                    type = "client",
+                    event = "GetTruckerPay",
+                    icon = "fas fa-money-bill-wave",
+                    label = "Get Paycheck",
+                },
+                {
+                    num = 4,
+                    type = "client",
+                    event = "RestartJob",
+                    icon = "fas fa-ban",
+                    label = "Restart Job",
+                },
+            }, {
                 distance = 2.0,
             })
         end
@@ -146,7 +144,7 @@ end)
 
 RegisterNetEvent("md-opentruckermenu")
 AddEventHandler("md-opentruckermenu", function()
-    exports['esx_menu']:openMenu({
+    lib.registerMenu({
         {
             header = "Gas Delivery Job",
             txt = "",
@@ -184,7 +182,11 @@ AddEventHandler("md-opentruckermenu", function()
                 event = "RestartJob",
             }
         },
-    })
+    }, function(selected, menu)
+        if selected.params and selected.params.event then
+            TriggerEvent(selected.params.event)
+        end
+    end)
 end)
 
 RegisterNetEvent("spawnTruck")
@@ -402,25 +404,24 @@ function BringToTruck()
                     insideZone = true
                     if truck == 1 and cooldown == 0 then
                         ESX.ShowNotification('Go fuel up the tanker!')
-                        if Config.Target == 'esx' then
+                        if Config.Target == 'ox' then
                             for _, model in ipairs(trailerModels) do
                                 local modelHash = tonumber(model)
-                                exports['esx_target']:AddTargetModel({modelHash}, {
-                                    options = {
-                                        {
-                                            type = "client",
-                                            event = "FuelTruck",
-                                            icon = "fas fa-gas-pump",
-                                            label = "Fuel Truck",
-                                            canInteract = function()
-                                                if cooldown == 0 then
-                                                    return true
-                                                else
-                                                    return false
-                                                end
+                                exports['ox_target']:AddModel(modelHash, {
+                                    {
+                                        type = "client",
+                                        event = "FuelTruck",
+                                        icon = "fas fa-gas-pump",
+                                        label = "Fuel Truck",
+                                        canInteract = function()
+                                            if cooldown == 0 then
+                                                return true
+                                            else
+                                                return false
                                             end
-                                        },
+                                        end
                                     },
+                                }, {
                                     distance = 5.0,
                                 })
                             end
@@ -447,21 +448,24 @@ RegisterNetEvent('FuelTruck', function()
     LoadAnimDict("timetable@gardener@filling_can")
     TaskPlayAnim(playerPed, "timetable@gardener@filling_can", "gar_ig_5_filling_can", 8.0, 1.0, -1, 1, 0, 0, 0, 0)
     TriggerServerEvent("InteractSound_SV:PlayOnSource", "refuel", 0.3)
-    ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'refueling', {
-        title = 'Refueling',
-        align = 'top-left',
-        elements = {
-            {label = 'Refueling Tanker', value = 'refueling'}
+    lib.registerMenu({
+        {
+            header = 'Refueling',
+            align = 'top-left',
+            elements = {
+                {label = 'Refueling Tanker', value = 'refueling'}
+            }
         }
-    }, function(data, menu)
-        cooldown = cooldown + 1
-        maxStations = 0
-        StopAnimTask(playerPed, "timetable@gardener@filling_can", "gar_ig_5_filling_can", 3.0, 3.0, -1, 2, 0, 0, 0, 0)
-        TriggerServerEvent("InteractSound_SV:PlayOnSource", "fuelstop", 0.4)
-        ESX.ShowNotification('You have finished refueling. You will be receiving an email with the location soon!')
-        RemoveBlip(blip)
-        Wait(10000)
-        GetNextLocation()
-    end, function(data, menu)
-        StopAnimTask(playerPed, "timetable@gardener@filling_can", "gar_ig_5_filling_can", 3.0, 3.0, -1, 2, 0, 0, 0, 0)
-        TriggerServerEvent("InteractSound_S
+    }, function(selected, menu)
+        if selected.value == 'refueling' then
+            cooldown = cooldown + 1
+            maxStations = 0
+            StopAnimTask(playerPed, "timetable@gardener@filling_can", "gar_ig_5_filling_can", 3.0, 3.0, -1, 2, 0, 0, 0, 0)
+            TriggerServerEvent("InteractSound_SV:PlayOnSource", "fuelstop", 0.4)
+            ESX.ShowNotification('You have finished refueling. You will be receiving an email with the location soon!')
+            RemoveBlip(blip)
+            Wait(10000)
+            GetNextLocation()
+        end
+    end)
+end)
