@@ -1,47 +1,38 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+ESX = nil
+
+TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 RegisterServerEvent('md-checkCash')
 AddEventHandler('md-checkCash', function()
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+    local xPlayer = ESX.GetPlayerFromId(src)
     local moneyType = Config.PayType
-    local balance = Player.Functions.GetMoney(moneyType)
+    local balance = xPlayer.getAccount(moneyType).money
     if Config.Debug == true then
         print(moneyType)
     end
     if balance >= Config.TruckPrice then
-        if moneyType == 'cash' then
-            Player.Functions.RemoveMoney(moneyType, Config.TruckPrice, "gas-delivery-truck")
-            TriggerClientEvent('spawnTruck', src)
-            TriggerClientEvent('TrailerBlip', src)
-        else
-            Player.Functions.RemoveMoney(moneyType, Config.TruckPrice, "gas-delivery-truck")
-            TriggerClientEvent('spawnTruck', src)
-            TriggerClientEvent('TrailerBlip', src)
-        end
+        xPlayer.removeAccountMoney(moneyType, Config.TruckPrice)
+        TriggerClientEvent('spawnTruck', src)
+        TriggerClientEvent('TrailerBlip', src)
     else
         TriggerClientEvent('NotEnoughTruckMoney', src)
     end
 end)
+
 RegisterServerEvent('md-ownedtruck')
 AddEventHandler('md-ownedtruck', function()
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+    local xPlayer = ESX.GetPlayerFromId(src)
     local moneyType = Config.PayType
-    local balance = Player.Functions.GetMoney(moneyType)
+    local balance = xPlayer.getAccount(moneyType).money
     if Config.Debug == true then
         print(moneyType)
     end
-     if balance >= Config.TankPrice then
-        if moneyType == 'cash' then
-            Player.Functions.RemoveMoney(moneyType, Config.TankPrice, "gas-Tank-truck")
-            TriggerClientEvent('spawnTruck2', src)
-            TriggerClientEvent('TrailerBlip', src)
-        else
-            Player.Functions.RemoveMoney(moneyType, Config.TankPrice, "gas-Tank-truck")
-            TriggerClientEvent('spawnTruck2', src)
-            TriggerClientEvent('TrailerBlip', src)
-        end
+    if balance >= Config.TankPrice then
+        xPlayer.removeAccountMoney(moneyType, Config.TankPrice)
+        TriggerClientEvent('spawnTruck2', src)
+        TriggerClientEvent('TrailerBlip', src)
     else
         TriggerClientEvent('NotEnoughTankMoney', src)
     end 
@@ -50,8 +41,7 @@ end)
 RegisterServerEvent('md-getpaid')
 AddEventHandler('md-getpaid', function(stationsRefueled)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+    local xPlayer = ESX.GetPlayerFromId(src)
     local moneyType = Config.PayType
-    local balance = Player.Functions.GetMoney(moneyType)
-    Player.Functions.AddMoney(Config.PayType, stationsRefueled * Config.PayPerFueling, "gas-delivery-paycheck")
+    xPlayer.addAccountMoney(moneyType, stationsRefueled * Config.PayPerFueling)
 end)
