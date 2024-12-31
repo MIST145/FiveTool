@@ -13,11 +13,7 @@ shared_scripts {
     '@PolyZone/BoxZone.lua'
 }
 client_scripts {
-    'client/main.lua',
+    'client.lua',
 }
-server_script 'server/main.lua'
+server_script 'server.lua'
 
-dependencies {
-    'qb-core',
-    'qb-target'
-}
